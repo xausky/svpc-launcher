@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/makiuchi-d/gozxing"
 	"net/url"
+	"os/exec"
 	"time"
 
 	"github.com/gonutz/w32/v2"
@@ -13,6 +14,10 @@ import (
 func main() {
 	render := qrcode.NewQRCodeReader()
 	tokenUrlQuery := LoadToken(false)
+	err := exec.Command("./影之诗.exe").Start()
+	if err != nil {
+		fmt.Println(err)
+	}
 	for {
 		time.Sleep(time.Second)
 		hWnd := w32.FindWindow("MPAY_LOGIN", "登录")
@@ -42,6 +47,7 @@ func main() {
 			return
 		}
 		uuid := scanQueryParams.Get("uuid")
+		fmt.Println("二维码扫码成功，UUID: ", uuid)
 		ScanRequestSend(uuid, tokenUrlQuery)
 		if SendConfirmLogin(uuid, tokenUrlQuery) {
 			break

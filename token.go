@@ -6,9 +6,13 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"strings"
 )
 
 func ParserTokenUrl(tokenUrl string) (url.Values, error) {
+	if !strings.HasPrefix(tokenUrl, "https") {
+		return nil, errors.New("地址应该以 https 开头")
+	}
 	parse, err := url.Parse(tokenUrl)
 	if err != nil {
 		return nil, err
@@ -18,22 +22,22 @@ func ParserTokenUrl(tokenUrl string) (url.Values, error) {
 		return nil, err
 	}
 	if !query.Has("token") {
-		return nil, errors.New("must has token params")
+		return nil, errors.New("地址必须有 token 参数，请完整复制")
 	}
 	return query, nil
 }
 
 func InputTokenUrl() string {
 	var tokenUrl string
+	reader := bufio.NewReaderSize(os.Stdin, 65536)
 	for {
 		fmt.Println("登录信息无效，请重新输入授权地址，获取教程：https://blog.xausky.cn")
-		reader := bufio.NewReaderSize(os.Stdin, 65536)
 		tokenUrlBytes, _, err := reader.ReadLine()
 		if err != nil {
 			fmt.Println("授权地址有误请严格按照教程执行。", err)
 			continue
 		}
-		tokenUrl = string(tokenUrlBytes)
+		tokenUrl = strings.TrimSpace(string(tokenUrlBytes))
 		_, err = ParserTokenUrl(tokenUrl)
 		if err != nil {
 			fmt.Println("授权地址有误请严格按照教程执行。", err)
@@ -46,17 +50,18 @@ func InputTokenUrl() string {
 }
 
 func LoadToken(clean bool) url.Values {
+	file := os.ExpandEnv("$APPDATA\\svpc-launcher-token.txt")
 	if clean {
-		err := os.Remove("svpc-launcher-token.txt")
+		err := os.Remove(file)
 		if err != nil {
 			panic(err)
 		}
 	}
-	tokenUrlBytes, err := os.ReadFile("svpc-launcher-token.txt")
+	tokenUrlBytes, err := os.ReadFile(file)
 	var tokenUrl string
 	if os.IsNotExist(err) {
 		tokenUrl = InputTokenUrl()
-		err = os.WriteFile("svpc-launcher-token.txt", []byte(tokenUrl), 0644)
+		err = os.WriteFile(file, []byte(tokenUrl), 0644)
 		if err != nil {
 			panic(err)
 		}
@@ -69,10 +74,12 @@ func LoadToken(clean bool) url.Values {
 	if err != nil {
 		tokenUrl = InputTokenUrl()
 		tokenUrlParams, _ = ParserTokenUrl(tokenUrl)
-		err = os.WriteFile("svpc-launcher-token.txt", []byte(tokenUrl), 0644)
+		err = os.WriteFile(file, []byte(tokenUrl), 0644)
 		if err != nil {
 			panic(err)
 		}
 	}
+	tokenUrlParams.Del("gv")
+	tokenUrlParams.Del("cv")
 	return tokenUrlParams
 }
