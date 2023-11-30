@@ -1,9 +1,9 @@
 package main
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
-	"github.com/makiuchi-d/gozxing"
 	"image"
 	"image/color"
 	"io/ioutil"
@@ -13,6 +13,8 @@ import (
 	"strings"
 	"time"
 	"unsafe"
+
+	"github.com/makiuchi-d/gozxing"
 
 	"github.com/gonutz/w32/v2"
 	"github.com/makiuchi-d/gozxing/qrcode"
@@ -81,11 +83,13 @@ func InputTokenUrl() string {
 	var tokenUrl string
 	for {
 		fmt.Println("登录信息无效，请重新输入授权地址，获取教程：https://blog.xausky.cn")
-		_, err := fmt.Scanln(&tokenUrl)
+		reader := bufio.NewReaderSize(os.Stdin, 65536)
+		tokenUrlBytes, _, err := reader.ReadLine()
 		if err != nil {
 			fmt.Println("授权地址有误请严格按照教程执行。", err)
 			continue
 		}
+		tokenUrl = string(tokenUrlBytes)
 		_, err = ParserTokenUrl(tokenUrl)
 		if err != nil {
 			fmt.Println("授权地址有误请严格按照教程执行。", err)
