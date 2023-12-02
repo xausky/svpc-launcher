@@ -9,9 +9,10 @@ import (
 )
 
 func TakeScreenshot(hWnd w32.HWND) image.Image {
+	s := float64(w32.GetDeviceCaps(w32.GetDC(0), w32.DESKTOPHORZRES)) / float64(w32.GetSystemMetrics(0))
 	rect := w32.GetWindowRect(hWnd)
-	width := rect.Right - rect.Left
-	height := rect.Bottom - rect.Top
+	width := int32(float64(rect.Right-rect.Left) * s)
+	height := int32(float64(rect.Bottom-rect.Top) * s)
 	fmt.Println(width, height)
 
 	hdc := w32.GetDC(hWnd)

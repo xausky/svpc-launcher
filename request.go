@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/tidwall/gjson"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/tidwall/gjson"
 )
 
 func SendConfirmLogin(uuid string, values url.Values) bool {
@@ -14,7 +15,7 @@ func SendConfirmLogin(uuid string, values url.Values) bool {
 	uri := "https://service.mkey.163.com/mpay/api/qrcode/confirm_login"
 	method := "POST"
 
-	requestBodyParams, err := url.ParseQuery("uuid=xxxxx&device_id=amawkzyaasy32xwt-d&token=xxxxx&jf_game_id=ma68&pay_channel=netease&is_remember=0&game_id=aecfrugltuaaaajo-g-ma68&gv=120&gvn=4.3.20&cv=a3.29.0&sv=33&app_type=games&app_mode=2&app_channel=netease&mcount_app_key=EEkEEXLymcNjM42yLY3Bn6AO15aGy4yq&mcount_transaction_id=4514532b-8ec3-11ee-9a36-4b696ee8d233-1")
+	requestBodyParams, err := url.ParseQuery("uuid=xxxxx&device_id=amawkzyaasy33xxx-d&token=xxxxx&jf_game_id=ma68&pay_channel=netease&is_remember=0&game_id=aecfrugltuaaaajo-g-ma68&gv=120&gvn=4.3.20&cv=a3.29.0&sv=33&app_type=games&app_mode=2&app_channel=netease&mcount_app_key=EEkEEXLymcNjM42yLY3Bn6AO15aGy4yq&mcount_transaction_id=4514532b-8ec3-11ee-9a36-4b696ee8d233-1")
 	if err != nil {
 		panic(err)
 	}

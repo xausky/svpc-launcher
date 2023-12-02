@@ -11,7 +11,7 @@ import (
 
 func ParserTokenUrl(tokenUrl string) (url.Values, error) {
 	if !strings.HasPrefix(tokenUrl, "https") {
-		return nil, errors.New("地址应该以 https 开头")
+		return nil, errors.New("地址应该以 https 开头: " + tokenUrl)
 	}
 	parse, err := url.Parse(tokenUrl)
 	if err != nil {
@@ -32,13 +32,14 @@ func InputTokenUrl() string {
 	reader := bufio.NewReaderSize(os.Stdin, 65536)
 	for {
 		fmt.Println("登录信息无效，请重新输入授权地址，获取教程：https://blog.xausky.cn")
-		tokenUrlBytes, _, err := reader.ReadLine()
-		if err != nil {
-			fmt.Println("授权地址有误请严格按照教程执行。", err)
-			continue
+		for {
+			tokenUrlBytes, _, _ := reader.ReadLine()
+			tokenUrl = strings.TrimSpace(string(tokenUrlBytes))
+			if tokenUrl != "" {
+				break
+			}
 		}
-		tokenUrl = strings.TrimSpace(string(tokenUrlBytes))
-		_, err = ParserTokenUrl(tokenUrl)
+		_, err := ParserTokenUrl(tokenUrl)
 		if err != nil {
 			fmt.Println("授权地址有误请严格按照教程执行。", err)
 			continue
@@ -61,17 +62,18 @@ func LoadToken(clean bool) url.Values {
 	var tokenUrl string
 	if os.IsNotExist(err) {
 		tokenUrl = InputTokenUrl()
-		err = os.WriteFile(file, []byte(tokenUrl), 0644)
+		err := os.WriteFile(file, []byte(tokenUrl), 0644)
 		if err != nil {
 			panic(err)
 		}
-	}
-	if err != nil {
+	} else if err != nil {
 		panic(err)
+	} else {
+		tokenUrl = string(tokenUrlBytes)
 	}
-	tokenUrl = string(tokenUrlBytes)
 	tokenUrlParams, err := ParserTokenUrl(tokenUrl)
 	if err != nil {
+		fmt.Println(err)
 		tokenUrl = InputTokenUrl()
 		tokenUrlParams, _ = ParserTokenUrl(tokenUrl)
 		err = os.WriteFile(file, []byte(tokenUrl), 0644)
